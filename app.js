@@ -1,19 +1,22 @@
 var CommentBox = React.createClass({
+  loadCommentsFromServer: function () {
+    $.ajax({
+        url:this.props.url,
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+          this.setState({data: data})
+        }.bind(this),
+        error: function (xhr, status, err){
+          console.error(this.props.url, status, err.toString());
+        }
+  },
   getInitialState: function() {
     return {data: []};
   },
   componentDidMount: function () {
-    $.ajax({
-      url:this.props.url,
-      dataType: 'json',
-      cache: false,
-      success: function (data) {
-        this.setState({data: data})
-      }.bind(this),
-      error: function (xhr, status, err){
-        console.error(this.props.url, status, err.toString());
-      }
-    });
+    this.loadCommentsFromServer();
+    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
   },
   render: function() {
     return (
@@ -42,7 +45,6 @@ var CommentList = React.createClass ({
     );
 }
 });
-
 var CommentForm = React.createClass ({
   render: function () {
     return (
@@ -64,6 +66,6 @@ var Comment = React.createClass ({
   }
 });
 ReactDOM. render(
-<CommentBox url="/api/comments"} />,
+<CommentBox url="https://northcoders-comment-box-server.herokuapp.com/api/comments" pollInterval={2000} />,
   document.getElementById('app')
 );
