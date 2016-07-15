@@ -1,46 +1,69 @@
 var CommentBox = React.createClass({
-  render: function () {
+  getInitialState: function() {
+    return {data: []};
+  },
+  componentDidMount: function () {
+    $.ajax({
+      url:this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function (data) {
+        this.setState({data: data})
+      }.bind(this),
+      error: function (xhr, status, err){
+        console.error(this.props.url, status, err.toString());
+      }
+    });
+  },
+  render: function() {
     return (
       <div className="commentBox">
-
-        </div>
+        <h1>Comments</h1>
+        <CommentList data={this.state.data} />
+        <CommentForm />
+      </div>
     );
   }
 });
 
 var CommentList = React.createClass ({
   render: function () {
-    return (
-      <div className="commentForm">
-        Hello! I'm a commentForm.
+    var commentNodes = this.props.data.map(function(comment) {
+      return (
+        <Comment author={comment.author} key={comment.id}>
+          {comment.text}
+        </Comment>
+      );
+    });
+        return (
+          <div className="commentList">
+            {commentNodes}
       </div>
     );
-  }
+}
 });
 
 var CommentForm = React.createClass ({
   render: function () {
     return (
-      <div className="commentForm">
-        Hello! I'm a commentForm.
-        </div>
+      <div className="commentForm"></div>
     );
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-ReactDOM.render(
-<h1>CommentBox</h1>,
+var Comment = React.createClass ({
+  render: function () {
+    return (
+      <div className="comment">
+        <h2 className="commentAuthor">
+          {this.props.author}
+          </h2>
+        {this.props.children}
+        </div>
+    );
+  }
+});
+ReactDOM. render(
+<CommentBox url="/api/comments"} />,
   document.getElementById('app')
 );
